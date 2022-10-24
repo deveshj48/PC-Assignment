@@ -13,7 +13,7 @@ void getVertEdg(int *numVertices, int *numEdges){
     char *line = (char*)malloc(30); //have to allocate size, otherwise get segfault
     //char *found;
 
-    textfile = fopen("graph_0.txt", "r");
+    textfile = fopen("graph_1.txt", "r");
 
     fgets(line, 30, textfile);
     
@@ -57,7 +57,7 @@ void setupGraph(int **adjMatrix, int numVertices, int numEdges){
     char *line  = (char*)malloc(30);
     int linecount = -1;
 
-    textfile = fopen("graph_0.txt", "r");
+    textfile = fopen("graph_1.txt", "r");
 
 
     while (fgets(line, 30, textfile)){

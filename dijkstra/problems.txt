@@ -1,4 +1,3 @@
-possible problems so far for Dijkstra - getting seg fault:
-- declaration of 'line' - should be line[30] or *line 
-    - *line needed for strsep()
-    - check '\0' if-stmt with line
+some notes so far:
+
+- for adjacency matrix, change text file name in both the getVertEdg() and setupGraph() functions
