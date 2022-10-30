@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
+#include <omp.h>
 
 /// @brief obtain the number of vertices and edges from textfile
 /// @return integer array with number of vertices and edges
@@ -114,6 +116,58 @@ void printGraph(int **adjMatrix, int numVertices){
     }
 }
 
+/// @brief checks whether all nodes are visited
+/// @return true if there is a 0 in the visited array (ie, theres an unvisited node)
+int Unvisited(int* visited, int numVertices){
+
+    int i = 0;
+    
+    while (i < numVertices){
+        if (visited[i] == 0){
+            return 1;
+        }
+        i++;
+    }
+
+    return 0;
+    
+
+}
+
+void OmpDijkstra(int **adjMatrix, int numVertices, int source){
+
+    //array of visited vertices. initialied to 0 (false). 1 is true
+    int* arrVisited = (int*)malloc(numVertices*sizeof(int));
+    for (int i = 0; i<numVertices; i++){
+        arrVisited[i] = 0;
+    }
+
+    //array of minimum weights, ie, l (L). initialised to max integer value
+    int* l = (int*)malloc(numVertices*sizeof(int));
+    for (int i = 0; i<numVertices; i++){
+        l[i] = INT_MAX;
+    }
+
+    //the source is visited
+    arrVisited[source] = 1;
+    l[source] = 0;
+
+    //------------------------------parallel section ------------------------------------------------------
+
+    #pragma omp parallel
+
+    //------------------------------parallel section end ------------------------------------------------------
+
+    
+
+    for (int h = 0; h < numVertices; h++){
+        printf("%i\t", l[h]);
+    }
+    printf("\n");
+
+    free(arrVisited);
+    free(l);
+}
 
 int main(){
 
@@ -131,6 +185,10 @@ int main(){
 
     setupGraph(adjMatrix, numVertices, numEdges);
     printGraph(adjMatrix, numVertices);
+
+    serialDijkstra(adjMatrix, numVertices, 0);
+
+
 
 
     //freeing the dynamically allocated memory

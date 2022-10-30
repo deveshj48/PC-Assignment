@@ -5,3 +5,11 @@ some notes so far:
     -since the adjacency matrix is symmetric, we can use for scatterv or similar function that allows for diff
         amounts of data to be sent, eg page 5 lecture 9 example 1
     - perhaps use derived datatype
+    - note all-to-one reduction (pg 6 of assignment brief)
+
+- for general parallel implemenation, look at parallel formulation
+    of Prim's algo in the textbook
+
+
+PROBLEM IN MY DIJKSTRA:
+- node A remain unvisited if there is no direct edge between the source and A
