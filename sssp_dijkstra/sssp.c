@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include <omp.h>
+
+#define GRAPH_FILE "graph_1.txt"
+
 
 /// @brief obtain the number of vertices and edges from textfile
 /// @return integer array with number of vertices and edges
@@ -14,7 +18,7 @@ void getVertEdg(int *numVertices, int *numEdges){
     char *line = (char*)malloc(30); //have to allocate size, otherwise get segfault
     //char *found;
 
-    textfile = fopen("graph_1.txt", "r");
+    textfile = fopen(GRAPH_FILE, "r");
 
     fgets(line, 30, textfile);
     
@@ -58,7 +62,7 @@ void setupGraph(int **adjMatrix, int numVertices, int numEdges){
     char *line  = (char*)malloc(30);
     int linecount = -1;
 
-    textfile = fopen("graph_1.txt", "r");
+    textfile = fopen(GRAPH_FILE, "r");
 
 
     while (fgets(line, 30, textfile)){
@@ -165,8 +169,8 @@ void serialDijkstra(int **adjMatrix, int numVertices, int source){
 
     int u;
     int min;
-    while (Unvisited(arrVisited, numVertices) == 1){ //while there are unvisited nodes
-    //for (int j=0; j < numVertices; j++){
+    //while (Unvisited(arrVisited, numVertices) == 1){ //while there are unvisited nodes
+    for (int j=0; j < numVertices-1; j++){
 
         min = INT_MAX; //roughly the maximum integer value
         int foundmin = 0;
@@ -221,9 +225,14 @@ int main(){
 
 
     setupGraph(adjMatrix, numVertices, numEdges);
-    printGraph(adjMatrix, numVertices);
+    //printGraph(adjMatrix, numVertices);
 
+    double start, finish_p;
+     /*serial run*/ 
+    start = omp_get_wtime();
     serialDijkstra(adjMatrix, numVertices, 0);
+	finish_p = omp_get_wtime() - start;
+    printf("\nSerial time: %f\n", finish_p);
 
 
 

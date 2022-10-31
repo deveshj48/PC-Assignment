@@ -1,6 +1,5 @@
 some notes so far:
 
-- for adjacency matrix, change text file name in both the getVertEdg() and setupGraph() functions
 - for MPI, 
     -since the adjacency matrix is symmetric, we can use for scatterv or similar function that allows for diff
         amounts of data to be sent, eg page 5 lecture 9 example 1
@@ -11,5 +10,8 @@ some notes so far:
     of Prim's algo in the textbook
 
 
-PROBLEM IN MY DIJKSTRA:
-- node A remain unvisited if there is no direct edge between the source and A
+things to try in openMP sssp:
+- put the "#pragma omp parallel" inside the while loop
+- try to get rid of the 1 big "omp for"
+- check speedup, etc
+- CURRENT OPENMP IMPLEMENTATION IS WRONG

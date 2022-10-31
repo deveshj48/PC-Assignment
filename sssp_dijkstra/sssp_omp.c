@@ -4,6 +4,8 @@
 #include <limits.h>
 #include <omp.h>
 
+#define GRAPH_FILE "graph_1.txt"
+
 /// @brief obtain the number of vertices and edges from textfile
 /// @return integer array with number of vertices and edges
 void getVertEdg(int *numVertices, int *numEdges){ 
@@ -15,7 +17,7 @@ void getVertEdg(int *numVertices, int *numEdges){
     char *line = (char*)malloc(30); //have to allocate size, otherwise get segfault
     //char *found;
 
-    textfile = fopen("graph_1.txt", "r");
+    textfile = fopen(GRAPH_FILE, "r");
 
     fgets(line, 30, textfile);
     
@@ -59,7 +61,7 @@ void setupGraph(int **adjMatrix, int numVertices, int numEdges){
     char *line  = (char*)malloc(30);
     int linecount = -1;
 
-    textfile = fopen("graph_1.txt", "r");
+    textfile = fopen(GRAPH_FILE, "r");
 
 
     while (fgets(line, 30, textfile)){
@@ -136,27 +138,82 @@ int Unvisited(int* visited, int numVertices){
 
 void OmpDijkstra(int **adjMatrix, int numVertices, int source){
 
+    //with openMP, cant explicitely split vertices among processes
+
     //array of visited vertices. initialied to 0 (false). 1 is true
     int* arrVisited = (int*)malloc(numVertices*sizeof(int));
-    for (int i = 0; i<numVertices; i++){
-        arrVisited[i] = 0;
-    }
+    
 
     //array of minimum weights, ie, l (L). initialised to max integer value
     int* l = (int*)malloc(numVertices*sizeof(int));
-    for (int i = 0; i<numVertices; i++){
-        l[i] = INT_MAX;
-    }
-
+    
     //the source is visited
     arrVisited[source] = 1;
     l[source] = 0;
 
     //------------------------------parallel section ------------------------------------------------------
 
-    #pragma omp parallel
+    //omp_set_num_threads(4);
+    #pragma omp parallel shared(source)
+    {
+
+        //initialise arrays
+        #pragma omp for
+        for (int i = 0; i<numVertices; i++){
+            if (i != source){
+                arrVisited[i] = 0;
+
+                if (adjMatrix[i][source] != -1){ //if direct edge between source and current vertex
+                    l[i] = adjMatrix[i][source];
+                }
+                else {
+                    l[i] = INT_MAX;
+                }
+            }
+
+        }
+
+
+        int u;
+        int min;
+        //while (Unvisited(arrVisited, numVertices) == 1){ //while there are unvisited nodes
+        #pragma omp for ordered
+            for (int j=0; j < numVertices-1; j++){
+
+                min = INT_MAX; 
+
+                #pragma omp for reduction(min : l[u]) //looking for minimum l[u] value - but we need the u later. not sure if it will store u
+                for (int v = 0; v < numVertices; v++){
+                    if (arrVisited[v] == 0){ //if an unvisited vertex
+                        if (l[v] <= min){
+                            u = v; //u is the vertex such that l[u] = min{l[v] | v is an element of the unvisited nodes}
+                            l[u] = l[v];
+                            min = l[v];
+                        }
+                    }
+                }
+
+                #pragma omp single //one thread updates this value
+                arrVisited[u] = 1; //vertex u is now considered visited
+                
+                
+
+                #pragma omp for
+                for (int v = 0; v < numVertices; v++){
+                    if (arrVisited[v] == 0){ //if an unvisited vertex
+                        if (adjMatrix[u][v] != -1 && l[u] != -1){
+                            if (l[u]+adjMatrix[u][v] < l[v]){
+                                l[v] = l[u]+adjMatrix[u][v];
+
+                            }
+                        }
+                    }
+                }
+            }
+    }
 
     //------------------------------parallel section end ------------------------------------------------------
+
 
     
 
@@ -184,9 +241,14 @@ int main(){
 
 
     setupGraph(adjMatrix, numVertices, numEdges);
-    printGraph(adjMatrix, numVertices);
+    //printGraph(adjMatrix, numVertices);
 
-    serialDijkstra(adjMatrix, numVertices, 0);
+    double start, finish_p;
+     /*Parallel run*/ 
+    start = omp_get_wtime();
+    OmpDijkstra(adjMatrix, numVertices, 0);
+	finish_p = omp_get_wtime() - start;
+    printf("\nParallel time: %f\n", finish_p);
 
 
 
