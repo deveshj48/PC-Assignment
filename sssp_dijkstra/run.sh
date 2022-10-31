@@ -6,5 +6,4 @@ echo ------------OpenMP SSSP is starting---------------
 ./sssp_omp |& tee sssp_omp.out
 echo -------------OpenMP SSSP is done------------------
 echo
-diff sssp.out sssp_omp.out
 

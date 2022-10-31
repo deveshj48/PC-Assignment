@@ -1,6 +1,9 @@
 {
     "files.associations": {
         "atomic": "c",
-        "memory": "c"
+        "memory": "c",
+        "stdio.h": "c",
+        "stdbool.h": "c",
+        "stdlib.h": "c"
     }
 }

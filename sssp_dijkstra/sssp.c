@@ -4,10 +4,8 @@
 #include <limits.h>
 #include <omp.h>
 
-#define GRAPH_FILE "graph_0.txt"
+#define GRAPH_FILE "graph_7.txt"
 #define SOURCE 0
-
-
 
 /// @brief obtain the number of vertices and edges from textfile
 /// @return integer array with number of vertices and edges
@@ -234,7 +232,7 @@ int main(){
     start = omp_get_wtime();
     serialDijkstra(adjMatrix, numVertices, SOURCE);
 	finish_p = omp_get_wtime() - start;
-    printf("\nSerial time: %f\n", finish_p);
+    printf("\nSerial Runtime: %f\n", finish_p);
 
 
 
