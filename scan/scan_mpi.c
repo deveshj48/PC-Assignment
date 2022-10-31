@@ -8,19 +8,19 @@
 #define SIZE 5
 
 // all-prefix-sums algorithm version which is inherently sequential
-/*
-void scan(const size_t N, int out[], int in[]){
-    size_t i = 0;
-    
-    for(size_t j = 0; j < N; j++){
-        out[j] = in[j];
-    }
 
-    for(i = 1; i < N; i++){
-        out[i] = in[i] + out[i-1];
-    }
-}
-*/
+// void scan(const size_t N, int out[], int in[]){
+//     size_t i = 0;
+    
+//     for(size_t j = 0; j < N; j++){
+//         out[j] = in[j];
+//     }
+
+//     for(i = 1; i < N; i++){
+//         out[i] = in[i] + out[i-1];
+//     }
+// }
+
 
 // void scan(const size_t N, int out[], int in[]){
 
@@ -125,7 +125,7 @@ int main(int argc, char *argv[]){
     // Check to see if any arguments were supplied
     if(argc > 1){
         
-        // Array size (argc is the size of the input, including the programme name "./main")
+        // Array size (argc is the size of the input, including the programme name "./scan")
         const size_t N = argc - 1;
 
         // Allocate array space on the heap and populate the allocated buffer with the values passed through main
