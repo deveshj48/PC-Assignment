@@ -5,6 +5,8 @@
 
 #include <mpi.h>
 
+#define SIZE 8
+
 // Serial up-sweep
 void serialReduceOp(const size_t N, int arr[]){
     int depth = (int) ((log(N)/log(2)) - 1);
@@ -99,7 +101,7 @@ void reduceOp(const size_t N, int arr[]){
         int max = (int) floor(((N-1)/pow(2,(d+1))));
         int end_index;
 
-            
+
             for(int i = 0; i <= max; i++){
                 // printf("Node:%d\t",i);
                 end_index = (i * num_of_indices_per_node)+(pow(2,d)-1) + pow(2,d);
@@ -127,15 +129,11 @@ void downSweep(const size_t N, int arr[]){
 
     int max, left_index, right_index, temp;
 
-    #pragma omp parallel shared(arr) private(max,left_index,right_index,temp)
-
-
     for(int d = depth; d >= 0; d--){
 
         // int num_of_indices_per_node = pow(2,(d+1));
         max = (int) floor(((N-1)/pow(2,(d+1))));
-            
-        #pragma omp for
+
         for(int i = 0; i <= max; i++){
 
             left_index = (int) (i*(pow(2,d)+d) + (i + pow(2,d) - 1));
@@ -194,6 +192,9 @@ void validateOutput(size_t N, int serial[], int parallel[]){
 }
 
 int main(int argc, char *argv[]){
+    
+    const size_t N = SIZE;
+    int arr[SIZE] = {2,1,4,0,3,7,6,3};
 
     // Check to see if any arguments were supplied
     if(argc > 1){
@@ -201,15 +202,12 @@ int main(int argc, char *argv[]){
         double seq_run_time = 0.0;
         clock_t start_time, end_time;
 
-        // Array size (argc is the size of the input, including the programme name "./scan_omp")
-        const size_t N = argc - 1;
-
         // Allocate array space on the heap and populate the allocated buffer with the values passed through main
         int *arr_in = (int*) malloc(sizeof(int) * N);
-        populateArr(N, arr_in, argv);
+        populateArr(N, arr_in, arr);
 
         int *arr_serial = (int*) malloc(sizeof(int) * N);
-        populateArr(N, arr_serial, argv);
+        populateArr(N, arr_serial, arr);
         seq_run_time = clock();
         serialScan(N,arr_serial);
         seq_run_time = ((double) (clock() - seq_run_time)) / CLOCKS_PER_SEC;
