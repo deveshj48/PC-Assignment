@@ -1,9 +1,10 @@
 echo ------------Serial SSSP is starting---------------
-./sssp |& tee -a terminal.out
+./sssp |& tee sssp.out
 echo -------------Serial SSSP is done------------------
 echo
 echo ------------OpenMP SSSP is starting---------------
-./sssp_omp |& tee -a terminal.out
+./sssp_omp |& tee sssp_omp.out
 echo -------------OpenMP SSSP is done------------------
 echo
+diff sssp.out sssp_omp.out
 
