@@ -15,3 +15,6 @@ things to try in openMP sssp:
 - try to get rid of the 1 big "omp for"
 - check speedup, etc
 - CURRENT OPENMP IMPLEMENTATION IS WRONG
+
+improved on:
+- used reduction for openmp, but changed to using local vars and critical

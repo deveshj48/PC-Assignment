@@ -3,9 +3,12 @@
 #include <string.h>
 #include <limits.h>
 #include <omp.h>
+#include <mpi.h>
 
-#define GRAPH_FILE "graph_0.txt"
+#define GRAPH_FILE "graph_1.txt"
 #define SOURCE 0
+
+
 
 /// @brief obtain the number of vertices and edges from textfile
 /// @return integer array with number of vertices and edges
@@ -137,126 +140,102 @@ int Unvisited(int* visited, int numVertices){
 
 }
 
-void OmpDijkstra(int **adjMatrix, int numVertices, int source){
+void MPIDijkstra(int **adjMatrix, int numVertices, int source){
 
-    //with openMP, cant explicitely split vertices among processes
+    int n, numprocs, myrank;
+    MPI_Init(&argc, &argv);
+    MPI_COMM_SIZE(MPI_COMM_WORLD, &numprocs);
+    MPI_COMM_RANK(MPI_COMM_WORLD, &myrank)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     //array of visited vertices. initialied to 0 (false). 1 is true
     int* arrVisited = (int*)malloc(numVertices*sizeof(int));
-    
+    for (int i = 0; i<numVertices; i++){
+        arrVisited[i] = 0;
+    }
 
     //array of minimum weights, ie, l (L). initialised to max integer value
     int* l = (int*)malloc(numVertices*sizeof(int));
-    
-    
+    for (int i = 0; i<numVertices; i++){
+        l[i] = INT_MAX;
+    }
 
-    //------------------------------parallel section ------------------------------------------------------
+    //the source is visited
+    arrVisited[source] = 1;
+    l[source] = 0;
 
-    //omp_set_num_threads(4);
-    int u;
-    int min, min_index;
-    // #pragma omp parallel shared(source, min, min_index, u, l, adjMatrix, arrVisited)
-    // {
-
-        //initialise arrays
-        //#pragma omp for
-    #pragma omp parallel for
-        for (int i = 0; i<numVertices; i++){
-            
-            arrVisited[i] = 0;
-
+    //this is essentially setting the weights of the direct edges from the source
+    for (int i = 0; i < numVertices; i++){
+        if (arrVisited[i] == 0){ //for all unvisited vertices
             if (adjMatrix[i][source] != -1){ //if direct edge between source and current vertex
                 l[i] = adjMatrix[i][source];
             }
             else {
                 l[i] = INT_MAX;
             }
-            
-
         }
+    }
 
-    //the source is visited
-    arrVisited[source] = 1;
-    l[source] = 0;
+    int u;
+    int min;
+    while (Unvisited(arrVisited, numVertices) == 1){ //while there are unvisited nodes
+    //for (int j=0; j < numVertices-1; j++){
 
-
-        
-        int counter = 0;
-        while (Unvisited(arrVisited, numVertices) == 1){ //while there are unvisited nodes
-            //#pragma omp for ordered
-        
-        //omp_set_nested(1);
-          
-        //for (int j=0; j < numVertices-1; j++){
-
-                min = INT_MAX;
-            
-            
-            #pragma omp parallel shared(source, min, min_index, u, l, adjMatrix, arrVisited)
-            {
-
-
-                int local_min = INT_MAX;
-                int local_min_index;
-
-                //https://stackoverflow.com/questions/28258590/using-openmp-to-get-the-index-of-minimum-element-parallelly
-                #pragma omp for
-                    for (int v = 0; v < numVertices; v++){
-                        //printf("I am thread: %i, with vertex: %i\n", omp_get_thread_num(), v);
-                        if (arrVisited[v] == 0){ //if an unvisited vertex
-                            if (l[v] < local_min){
-                                local_min_index = v;
-                                local_min = l[v];
-                            }
-                        }
-                    }
-
-                //#pragma omp barrier
-
-                
-                #pragma omp critical
-                {
-                    if (local_min_index <= numVertices && arrVisited[local_min_index]==0){
-                        //printf("I am thread: %i, with local min: %i at index: %i\n", omp_get_thread_num(), local_min, local_min_index);
-                        if (local_min < min){
-                            min = local_min;
-                            min_index = local_min_index;
-                            // u = min_index;
-                        }
-                    }
+        min = INT_MAX; //roughly the maximum integer value
+        int foundmin = 0;
+        for (int v = 0; v < numVertices; v++){
+            if (arrVisited[v] == 0){ //if an unvisited vertex
+                if (l[v] <= min){
+                    u = v; //u is the vertex such that l[u] = min{l[v] | v is an element of the unvisited nodes}
+                    l[u] = l[v];
+                    min = l[v];
+                    foundmin = 1;
                 }
-                #pragma omp barrier
-
-                #pragma omp single
-                {
-                    //printf("the overall min is %i at index %i\n", min, min_index);
-                    u = min_index;
-                    l[u] = min;
-                    arrVisited[u] = 1;
-                }
-                    
-                #pragma omp for 
-                    for (int v = 0; v < numVertices; v++){
-                        if (arrVisited[v] == 0){ //if an unvisited vertex
-                            if (adjMatrix[u][v] != -1 && l[u] != INT_MAX){
-                                if (l[u]+adjMatrix[u][v] < l[v]){
-                                    l[v] = l[u]+adjMatrix[u][v];
-
-                                }
-                            }
-                        }
-                    }
-            
             }
         }
 
-    
-    
+        if (foundmin == 1){
+            arrVisited[u] = 1; //vertex u is now considered visited
+        }
 
-    //------------------------------parallel section end ------------------------------------------------------
+        for (int v = 0; v < numVertices; v++){
+            if (arrVisited[v] == 0){ //if an unvisited vertex
+                if (adjMatrix[u][v] != -1 && l[u] != -1){
+                    if (l[u]+adjMatrix[u][v] < l[v]){
+                        l[v] = l[u]+adjMatrix[u][v];
 
-
-    
+                    }
+                }
+            }
+        }
+    }
 
     for (int h = 0; h < numVertices; h++){
         printf("%i\t", l[h]);
@@ -285,11 +264,11 @@ int main(){
     //printGraph(adjMatrix, numVertices);
 
     double start, finish_p;
-     /*Parallel run*/ 
+     /*serial run*/ 
     start = omp_get_wtime();
-    OmpDijkstra(adjMatrix, numVertices, SOURCE);
+    MPIDijkstra(adjMatrix, numVertices, SOURCE);
 	finish_p = omp_get_wtime() - start;
-    printf("\nParallel time: %f\n", finish_p);
+    printf("\nSerial time: %f\n", finish_p);
 
 
 

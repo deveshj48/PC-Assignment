@@ -4,7 +4,9 @@
 #include <limits.h>
 #include <omp.h>
 
-#define GRAPH_FILE "graph_1.txt"
+#define GRAPH_FILE "graph_0.txt"
+#define SOURCE 0
+
 
 
 /// @brief obtain the number of vertices and edges from textfile
@@ -169,8 +171,8 @@ void serialDijkstra(int **adjMatrix, int numVertices, int source){
 
     int u;
     int min;
-    //while (Unvisited(arrVisited, numVertices) == 1){ //while there are unvisited nodes
-    for (int j=0; j < numVertices-1; j++){
+    while (Unvisited(arrVisited, numVertices) == 1){ //while there are unvisited nodes
+    //for (int j=0; j < numVertices-1; j++){
 
         min = INT_MAX; //roughly the maximum integer value
         int foundmin = 0;
@@ -230,7 +232,7 @@ int main(){
     double start, finish_p;
      /*serial run*/ 
     start = omp_get_wtime();
-    serialDijkstra(adjMatrix, numVertices, 0);
+    serialDijkstra(adjMatrix, numVertices, SOURCE);
 	finish_p = omp_get_wtime() - start;
     printf("\nSerial time: %f\n", finish_p);
 
