@@ -124,6 +124,7 @@ int main(int argc, char *argv[]){
 
     // Check to see if any arguments were supplied
     if(argc > 1){
+        double run_time = 0.0;
         
         // Array size (argc is the size of the input, including the programme name "./scan")
         const size_t N = argc - 1;
@@ -154,14 +155,25 @@ int main(int argc, char *argv[]){
         printf("Input:\n");
         printArr(N,arr_in);
 
+        clock_t start, end;
+        start = clock();
         reduceOp(N,arr_in);
         
-        printf("Reduce Operation:\n");
+        printf("After Reduce Operation:\n");
         printArr(N,arr_in);
 
         downSweep(N,arr_in);
+
+        end = clock();
+        run_time = ((double) (end - start)) / CLOCKS_PER_SEC;
+
         printf("After Down-sweep:\n");
         printArr(N,arr_in);
+
+
+        printf("\n**Checks\n");
+        // Print Performance Metrics
+        printf("Run Time:%f s\n",run_time);
 
         // Free the allocated buffer / memory of the 2 arrays on the heap
         free(arr_in);
