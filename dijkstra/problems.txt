@@ -1,7 +1,0 @@
-some notes so far:
-
-- for adjacency matrix, change text file name in both the getVertEdg() and setupGraph() functions
-- for MPI, 
-    -since the adjacency matrix is symmetric, we can use for scatterv or similar function that allows for diff
-        amounts of data to be sent, eg page 5 lecture 9 example 1
-    - perhaps use derived datatype
